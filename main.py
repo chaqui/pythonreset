@@ -1,36 +1,45 @@
 import sys
-clientes = 'pablo,ricardo,'
+clientes = [{
+                'name':'pablo',
+                'company':'Google',
+                'email':'pablo@google.com',
+                'position':'Software Engineer',
+            },
+            {
+                'name':'Ricardo',
+                'company':'Facebook',
+                'email':'sricarfo@facebook.com',
+                'position':'Data Engineer',
+            }]
 
 
-def create_client(client_name):
+def create_client(client):
     global clientes
-    if client_name not in clientes:
-        clientes += client_name
-        _add_coma()
+    if client not in clientes:
+        clientes.append(client)
     else:
         print('client already is in the client\'s list')
 
-def _add_coma():
-    global clientes
-    clientes +=','
-
 def list_clients():
-    global clientes
-    print(clientes)
+    for idx, client in enumerate(clientes):
+        print("{uid} |{name} | {company} | {email} |{position} ".format(
+            uid=idx,
+            name = client['name'],
+            company = client['company'],
+            email = client['email'],
+            position = client['position']))
 
-def update_client(client_name, update_client_name):
+def update_client(index, update_client):
     global clientes
-    if client_name in clientes :
-        clientes = clientes.replace(client_name+',', update_client_name+',')
-    else:
-        print ('CLient is not in clients list')
+    clientes[index] = update_client
 
 def delete_client(client_name):
     global clientes
-    if client_name in clientes:
-        clientes = clientes.replace(client_name+',','')
+    found = search_client(client_name)
+    if found > -1:
+        del clientes[found]
     else:
-        print ("client is not in clients list")
+        print("The cliente: {} is not in our client's List".format(client_name))
 
 def _printWelcome():
     print ('Welcome To Platzi Ventas')
@@ -43,12 +52,10 @@ def _printWelcome():
     print ('[S]earch Client')
 
 def search_client(client_name):
-    clients_list = clientes.split(',')
-
-    for client in clients_list:
-        if(client_name == client):
-            return True
-    return False
+    for idx, client in enumerate(clientes):
+        if(client_name == client.get("name")):
+            return idx
+    return -1
 
 def __get_client_name():
     client_name = None
@@ -61,15 +68,29 @@ def __get_client_name():
     if not client_name:
         sys.exit()
     return client_name
+def __get_client_field(field_name):
+    field = None
+    while not field:
+        field = input('What is the client {}?'.format(field_name))
+    return field
 
+def __getClient():
+    client = {
+            'name': __get_client_field('name'),
+            'company': __get_client_field('company'),
+            'email': __get_client_field('email'),
+            'position': __get_client_field('position'),
+        }
+    return client
 if __name__ == '__main__':
     _printWelcome()
-    command=input()
+    command = input()
     command = command.upper()
     if command == 'C':
-        clientName= __get_client_name()
-        create_client(clientName)
+        client = __getClient()
+        create_client(client)
         list_clients()
+
     elif command == 'L':
         list_clients()
     elif command== 'D':
@@ -78,16 +99,21 @@ if __name__ == '__main__':
         list_clients()
     elif command== 'U':
         client_name = __get_client_name()
-        update_client_name = input("What is the updated cliente name?")
-        update_client(client_name, update_client_name)
+        found = search_client(client_name)
+        if found > -1:
+            print("values of client modified")
+            client_update = __getClient()
+            update_client(found, client_update)
+        else:
+            print("The cliente: {} is not in our client's List".format(client_name))
         list_clients()
     elif command == 'S':
         client_name = __get_client_name()
         found = search_client(client_name)
-        if found:
+        if found > -1:
             print("The client is in the client's List")
         else:
-            print("The cliente: {} is not in our client's List",format(client_name))
+            print("The cliente: {} is not in our client's List".format(client_name))
     else:
         print(' invalid command')
 
